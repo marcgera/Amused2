@@ -517,6 +517,7 @@ class AmusedDB(object):
         self.create_table(table_name)
         columns = ["label_nl text DEFAULT ''",
                    "label_fr text DEFAULT ''",
+                   "label_en text DEFAULT ''",
                    "label_se text DEFAULT ''",
                    "label_de text DEFAULT ''",
                    "label_es text DEFAULT ''",
