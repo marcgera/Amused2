@@ -59,10 +59,30 @@ def getCategories():
 def getLevels():
     return json.dumps(db.getLevels('EN'))
 
+@app.route('/logVideo', methods=['GET'])
+def logClip():
+    video_ID = int(request.args.get('video_ID'))
+    background_ID = int(request.args.get('background_ID'))
+    playlist_ID = int(request.args.get('playlist_ID'))
+    db.logVideo(video_ID, background_ID, playlist_ID)
+    return "http200OK"
+
+@app.route('/logMusic', methods=['GET'])
+def logMusic():
+    music_ID = int(request.args.get('music_ID'))
+    playlist_ID = int(request.args.get('playlist_ID'))
+    db.logMusic(music_ID, playlist_ID)
+    return "http200OK"
+
 
 @app.route('/getBackgrounds')
 def getBackgrounds():
     return json.dumps(db.getBackgrounds('EN'))
+
+@app.route('/getLogsVideo', methods=['GET'])
+def getLogsMusic():
+    therapist_ID = int(request.args.get('therapist_ID'))
+    return db.getLogVideo(therapist_ID)
 
 
 @app.route('/getVideos', methods=['GET'])

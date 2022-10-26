@@ -170,7 +170,11 @@ function updateVideoTimePassedDiv(){
 
 function doPlay() {
     g_video1.play();
+    plItem = g_playListItemsVideo[0];
+    logVideo(plItem);
     g_audioElement1.play();
+    plitem = g_playListItemsMusic[0];
+    logMusic(plitem);
 }
 
 function doStop() {
@@ -250,6 +254,7 @@ function playNextMusic(){
         g_audioElement2.setAttribute('src',srcAudio);
         g_playingAudio1 = 1;
     }
+    logMusic(plItemMusic);
 }
 
 function playNextVideo() {
@@ -298,12 +303,30 @@ function playNextVideo() {
         g_playingVideo1 = true;
     }
 
+
     videoElement.style.opacity = 1;
     previousVideoElement.style.opacity = 0;
     videoElement.setAttribute('src', srcVideo);
     videoElement.play();
+    logVideo(plItemVideo);
 }
 
+function logVideo(plItemVideo){
+    params = "?video_ID=" + plItemVideo.playlist_videos_video_ID;
+    params = params + "&background_ID=" + plItemVideo.backgrounds_sort_order;
+    params = params + "&playlist_ID=" + plItemVideo.playlist_videos_playlist_ID;
+
+    $.get("/logVideo" + params, function (data, status) {
+    });
+}
+
+function logMusic(plItemMusic){
+    params = "?music_ID=" + plItemMusic.playlist_music_music_ID;
+    params = params + "&playlist_ID=" + plItemMusic.playlist_music_playlist_ID;
+
+    $.get("/logMusic" + params, function (data, status) {
+    });
+}
 
 
 

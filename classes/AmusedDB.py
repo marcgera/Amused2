@@ -2,7 +2,7 @@ import sqlite3
 import os
 import platform
 import calendar
-import datetime
+from datetime import datetime
 
 def dict_factory(cursor, row):
     d = {}
@@ -181,6 +181,14 @@ class AmusedDB(object):
         self.execute(sql_string)
         return 'http200OK'
 
+    def logVideo(self, therapist_ID, video_ID, playlist_ID):
+        conn = sqlite3.connect(self.db_full_f_name)
+        sql_string = 'INSERT INTO playlist_music (playlist_music_playlist_ID,  ' \
+                     'playlist_music_music_ID, playlist_music_sort_order) ' \
+                     'VALUES (' + str(playlist_ID) + ', ' + str(music_ID) + ', 1000)'
+        self.execute(sql_string)
+        return 'http200OK'
+
     def addVideo2PlaylistItems(self, playlist_ID, video_ID):
         conn = sqlite3.connect(self.db_full_f_name)
         sql_string = 'INSERT INTO playlist_videos (playlist_videos_playlist_ID, ' \
@@ -327,6 +335,90 @@ class AmusedDB(object):
         sql_string = "UPDATE playlist_items SET playlist_items_sort_order=" + str(sort_order_orig) + " WHERE ID=" + str(id_other)
         c.execute(sql_string)
         conn.close()
+
+
+
+    def getRow(self, tableName, id):
+        conn = sqlite3.connect(self.db_full_f_name)
+        conn.row_factory = dict_factory
+        c = conn.cursor()
+        sql_string = "SELECT * FROM " + tableName + " WHERE ID=" + str(id)
+        c.execute(sql_string)
+        data = c.fetchone()
+        return data
+
+    def logVideo(self, video_ID, background_ID, playlist_ID):
+
+        dt = datetime.now()
+        ts = int(datetime.timestamp(dt))
+        video_info = self.getRow('videos', video_ID)
+        playlist_info = self.getRow('playlists', playlist_ID)
+        user_info = self.getRow('users', playlist_info.get("playlists_user_ID"))
+
+        sql_string = "INSERT INTO log_video (log_video_ts, " \
+                    "log_video_ts_full, " \
+                    "log_video_video_ID, " \
+                    "log_video_background_SO, " \
+                    "log_video_therapist_ID, " \
+                    "log_video_therapist_name, " \
+                    "log_video_playlist_ID, " \
+                    "log_video_video_name," \
+                    "log_video_video_description" \
+                    ") VALUES (" \
+                    + str(ts) + ", '" \
+                    + dt.strftime("%m/%d/%Y, %H:%M:%S") + "', " \
+                    + str(video_ID) + ", " \
+                    + str(background_ID) + ", " \
+                    + str(user_info.get("ID")) + ", " \
+                    + "'" + user_info.get("user_name") + " " + user_info.get("user_surname") + "', " \
+                    + str(playlist_info.get("playlists_user_ID")) + ", " \
+                    + "'" + video_info.get("videos_name") + "', " \
+                    + "'" +video_info.get("videos_description") + "')"
+
+        self.execute(sql_string)
+
+    def logMusic(self, music_ID, playlist_ID):
+            dt = datetime.now()
+            ts = int(datetime.timestamp(dt))
+            music_info = self.getRow('music', music_ID)
+            playlist_info = self.getRow('playlists', playlist_ID)
+            user_info = self.getRow('users', playlist_info.get("playlists_user_ID"))
+
+            therapist_name = "'" + user_info.get("user_name") + " " + user_info.get("user_surname") + "'"
+            music_name = "'" + music_info.get("music_name") + "'"
+
+
+
+            sql_string = "INSERT INTO log_music (log_music_ts, " \
+                         "log_music_ts_full, " \
+                         "log_music_music_ID, " \
+                         "log_music_therapist_ID, " \
+                         "log_music_therapist_name, " \
+                         "log_music_playlist_ID, " \
+                         "log_music_music_name" \
+                         ") VALUES (" \
+                         + str(ts) + ", '" \
+                         + dt.strftime("%m/%d/%Y, %H:%M:%S") + "', " \
+                         + str(music_ID) + ", " \
+                         + str(user_info.get("ID")) + ", " \
+                         + therapist_name + ", " \
+                         + str(playlist_info.get("playlists_user_ID")) + ", " \
+                         + music_name + "')"
+
+            sql_string = sql_string.replace("\\", "")
+            sql_string = sql_string.replace("''", "'")
+
+            self.execute(sql_string)
+
+    def getLogVideo(self, therapist_ID):
+        conn = sqlite3.connect(self.db_full_f_name)
+        conn.row_factory = dict_factory
+        c = conn.cursor()
+        sql_string = "SELECT * FROM log_video WHERE log_video_therapist_ID=" + str(therapist_ID)
+        c.execute(sql_string)
+        data = c.fetchall()
+        return data
+
 
 
     def movePlaylistitem(self, itemID, tableName, direction):
@@ -487,15 +579,18 @@ class AmusedDB(object):
         self.insert_columns(table_name, columns)
 
         # ********************************************************
-        table_name = 'log_exercise'
+        table_name = 'log_video'
         self.create_table(table_name)
 
-        columns = ["log_exercise_ts INTEGER DEFAULT -1",
-                   "log_exercise_ID text DEFAULT ''",
-                   "log_exercise_background_SO INTEGER DEFAULT -1",
-                   "log_exercise_level_SO text DEFAULT ''",
-                   "log_exercise_category text DEFAULT ''",
-                   "log_exercise_ID INTEGER DEFAULT -1"]
+        columns = ["log_video_ts INTEGER DEFAULT -1",
+                   "log_video_ts_full text DEFAULT ''",
+                   "log_video_video_ID text DEFAULT ''",
+                   "log_video_background_SO INTEGER DEFAULT -1",
+                   "log_video_therapist_ID INTEGER DEFAULT -1",
+                   "log_video_therapist_name text DEFAULT ''",
+                   "log_video_video_name text DEFAULT ''",
+                   "log_video_video_description text DEFAULT ''",
+                   "log_video_playlist_ID INTEGER DEFAULT -1"]
 
         self.insert_columns(table_name, columns)
 
@@ -504,8 +599,11 @@ class AmusedDB(object):
         self.create_table(table_name)
 
         columns = ["log_music_ts INTEGER DEFAULT -1",
-                   "log_music_name text DEFAULT ''",
-                   "log_music_category text DEFAULT ''",
+                   "log_music_ts_full text DEFAULT ''",
+                   "log_music_music_name text DEFAULT ''",
+                   "log_music_music_ID INTEGER DEFAULT -1",
+                   "log_music_playlist_ID INTEGER DEFAULT -1",
+                   "log_music_therapist_name text DEFAULT ''",
                    "log_music_therapist_ID INTEGER DEFAULT -1"]
 
 
