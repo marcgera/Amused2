@@ -10,6 +10,15 @@ def dict_factory(cursor, row):
         d[col[0]] = row[idx]
     return d
 
+def csv_factory(cursor, row):
+    d = ''
+    for idx, col in enumerate(cursor.description):
+        if idx == 0:
+            d = str(row[idx])
+        else:
+            d = d + ';' + str(row[idx])
+    return d
+
 class AmusedDB(object):
 
     def __init__(self):
@@ -412,14 +421,21 @@ class AmusedDB(object):
 
     def getLogVideo(self, therapist_ID):
         conn = sqlite3.connect(self.db_full_f_name)
-        conn.row_factory = dict_factory
+        conn.row_factory = csv_factory
         c = conn.cursor()
-        sql_string = "SELECT * FROM log_video WHERE log_video_therapist_ID=" + str(therapist_ID)
+        sql_string = "SELECT * FROM log_video JOIN videos ON log_video_video_ID=videos.ID WHERE log_video_therapist_ID=" + str(therapist_ID)
         c.execute(sql_string)
         data = c.fetchall()
         return data
 
-
+    def getLogMusic(self, therapist_ID):
+        conn = sqlite3.connect(self.db_full_f_name)
+        conn.row_factory = csv_factory
+        c = conn.cursor()
+        sql_string = "SELECT * FROM log_music JOIN music ON log_music_music_ID=music.ID WHERE log_music_therapist_ID=" + str(therapist_ID)
+        c.execute(sql_string)
+        data = c.fetchall()
+        return data
 
     def movePlaylistitem(self, itemID, tableName, direction):
         if direction == 'up':

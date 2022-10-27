@@ -17,7 +17,7 @@ import google.auth.transport.requests
 print('')
 print(' **********************************************************')
 print(' *                                                        *')
-print(' * Amused server - Marc Geraerts - September 2022 - V1.01 *')
+print(' * Amused server - Marc Geraerts - October 2022 - V1.1    *')
 print(' *     Institute of Rehabilitation Science - UHasselt     *')
 print(' *                                                        *')
 print(' **********************************************************')
@@ -80,10 +80,16 @@ def getBackgrounds():
     return json.dumps(db.getBackgrounds('EN'))
 
 @app.route('/getLogsVideo', methods=['GET'])
+def getLogsVideo():
+    therapist_ID = int(request.args.get('therapist_ID'))
+    result = db.getLogVideo(therapist_ID)
+    return '\r\n'.join(result)
+
+@app.route('/getLogsMusic', methods=['GET'])
 def getLogsMusic():
     therapist_ID = int(request.args.get('therapist_ID'))
-    return db.getLogVideo(therapist_ID)
-
+    result = db.getLogMusic(therapist_ID)
+    return '\r\n'.join(result)
 
 @app.route('/getVideos', methods=['GET'])
 def getVideos():
