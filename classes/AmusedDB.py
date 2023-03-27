@@ -208,7 +208,7 @@ class AmusedDB(object):
 
     def addPlayList(self, playlistUserID, playListName):
 
-        date = datetime.datetime.utcnow()
+        date = datetime.utcnow()
         utc_time = calendar.timegm(date.utctimetuple())
 
         values = '(' + playlistUserID + ',"' + playListName + '",' + str(utc_time) + ')'
@@ -562,7 +562,6 @@ class AmusedDB(object):
                    "playlist_items_video_ID INTEGER DEFAULT -1"]
 
         self.insert_columns(table_name, columns)
-
 
         # ********************************************************
         table_name = 'playlist_videos'
