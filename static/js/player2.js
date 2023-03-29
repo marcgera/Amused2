@@ -18,6 +18,8 @@ var g_FadeTimerInterval = 200;
 var g_TransitionUngoing = false;
 var g_FadeDelta;
 var g_PlayedMusic =[];
+var video_loc = "https://storage.cloud.google.com/amused_media/media/video/";
+var music_loc = "https://storage.cloud.google.com/amused_media/media/music/";
 
 
 g_audioElement1 = document.createElement('audio');
@@ -204,8 +206,10 @@ function preLoadMedia() {
         g_PreviousCategory = plItemVideo.videos_category_SO;
         g_CurrentMusicPlayList = loadPlayListMusic(plItemVideo.videos_category_SO);
         plItemMusic = g_CurrentMusicPlayList[0]
-        srcVideo = '../static/video/' + plItemVideo.backgrounds_name + '/' + plItemVideo.videos_name;
-        srcAudio = '../static/music/' + plItemMusic.music_filename;
+        
+        srcVideo = video_loc + plItemVideo.backgrounds_name + '/' + plItemVideo.videos_name;
+        srcAudio = music_loc + plItemMusic.music_filename;
+
         g_audioElement1.setAttribute('src', srcAudio);
         g_video1.setAttribute('src', srcVideo);
 
