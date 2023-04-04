@@ -27,8 +27,8 @@
   <!-- your content here... -->
   <script src="../static/js/player2.js"></script>
 
-    <button id="play">Play</button>
-    <button id="stop">Stop</button>
+    <button id="play" style="z-index:1000;position: relative;">Play</button>
+    <button id="stop" style="z-index:1000;position: relative;">Stop</button>
 
     <p id ='videoDuration'>Video duration 1 and 2: </p>
     <p id ='videoTimePassed'>Current second audio 2:</p>
@@ -41,11 +41,11 @@
     <p id ='currentAudio'>CurrentAudio: </p>
     <p >CurrentVideo playlist item: <span id ='currentVideoPlayListItem'></span></p>
 
-    <video id='video1' controls>
+    <video id='video1' controls muted="muted">
 
     Your browser does not support the video tag.
     </video>
-    <video id='video2' controls>
+    <video id='video2' controls muted="muted">
 
       Your browser does not support the video tag.
       </video>

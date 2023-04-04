@@ -138,7 +138,7 @@ $(document).ready(function () {
 
     $('#play').on('click', function () {
         //window.open("http://165.227.148.142:81/playlist?playlist_ID=" + g_playlist.ID.toString());
-        window.open("http://127.0.0.1:81/playlist?playlist_ID=" + g_playlist.ID.toString());
+        window.open("/playlist?playlist_ID=" + g_playlist.ID.toString());
     })
 
     $('#playlists').on('change', function () {

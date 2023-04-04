@@ -37,7 +37,6 @@ $(document).ready(function () {
     g_video1 = $('#video1')[0];
     g_video2 = $('#video2')[0];
 
-
     g_FadeDelta = g_FadeTimerInterval / g_fadeTime;
 
     params = "?playlist_ID=" + urlParams.get('playlist_ID');
@@ -105,10 +104,6 @@ $(document).ready(function () {
     $('#stop').on('click', function () {
         doStop();
     })
-
-    setTimeout(function() {
-        doPlay();
-      }, 5000);
 
     tmr = setInterval(() => {
         if (!g_TransitionUngoing) {return}
@@ -217,14 +212,14 @@ function preLoadMedia() {
 
         if (g_playListItemsVideo.length > 1) {
             plItemVideo = g_playListItemsVideo[1];
-            srcVideo = '../static/video/' + plItemVideo.backgrounds_name + '/' + plItemVideo.videos_name;
+            srcVideo = video_loc + plItemVideo.backgrounds_name + '/' + plItemVideo.videos_name;
             g_video2.setAttribute('src', srcVideo);
         }
 
         if (g_CurrentMusicPlayList.length > 1) {
             g_currentPlaylistMusicItemIndex = g_currentPlaylistMusicItemIndex + 1;
             plItemMusic = g_CurrentMusicPlayList[g_currentPlaylistMusicItemIndex];
-            srcAudio = '../static/music/' + plItemMusic.music_filename;
+            srcAudio = music_loc + plItemMusic.music_filename;
             g_audioElement2.setAttribute('src', srcAudio);
         }
 
@@ -243,7 +238,7 @@ function playNextMusic(){
         g_currentPlaylistMusicItemIndex = g_currentPlaylistMusicItemIndex + 1;
     }
     plItemMusic = g_CurrentMusicPlayList[g_currentPlaylistMusicItemIndex];
-    srcAudio = '../static/music/' + plItemMusic.music_filename;
+    srcAudio = music_loc + plItemMusic.music_filename;
     g_PlayedMusic.push(plItemMusic.ID);
 
     if (g_playingAudio1) {
@@ -272,7 +267,7 @@ function playNextVideo() {
     }
 
     plItemVideo = g_playListItemsVideo[g_currentPlaylistVideoItemIndex];
-    srcVideo = '../static/video/' + plItemVideo.backgrounds_name + '/' + plItemVideo.videos_name;
+    srcVideo = video_loc + plItemVideo.backgrounds_name + '/' + plItemVideo.videos_name;
     p_CurrentCategory = plItemVideo.videos_category_SO;
 
     if (g_PreviousCategory !== p_CurrentCategory){
@@ -282,13 +277,13 @@ function playNextVideo() {
         g_playingAudio1 = 1;
         g_CurrentMusicPlayList = loadPlayListMusic(p_CurrentCategory);
         plItemMusic = g_CurrentMusicPlayList[0];
-        srcAudio = '../static/music/' + plItemMusic.music_filename;
+        srcAudio = music_loc + plItemMusic.music_filename;
         g_PlayedMusic.push(plItemMusic.ID);
         g_audioElement1.setAttribute('src', srcAudio);
         g_currentPlaylistMusicItemIndex = 0;
         if (g_CurrentMusicPlayList.length > 1) {
             plItemMusic = g_CurrentMusicPlayList[1];
-            srcAudio = '../static/music/' + plItemMusic.music_filename;
+            srcAudio = music_loc + plItemMusic.music_filename;
             g_audioElement2.setAttribute('src', srcAudio);
             g_currentPlaylistMusicItemIndex = 1;
         }

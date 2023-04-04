@@ -29,8 +29,7 @@ class AmusedDB(object):
         if current_os.lower() == "windows":
             db_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + '..' + os.path.sep + 'database' + os.path.sep
         else:
-            #config.read('/var/www/webApp/webApp/mlconfig.ini')
-            db_path = '/usr/share/pyshared/amused/database/'
+            db_path = os.getcwd() + '/database/'
 
         self.db_f_name = 'amusedDB'
         self.db_dir_name = db_path
@@ -52,6 +51,13 @@ class AmusedDB(object):
 
     def conn(self):
         return self.conn
+
+    def dump(self):
+        conn = sqlite3.connect(self.db_full_f_name)
+        strdump = ''
+        for line in conn.iterdump():
+            strdump = strdump + line + '<br>'
+        return strdump
 
     def insert_columns(self, table_name, columns):
         conn = sqlite3.connect(self.db_full_f_name)

@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, Blueprint
 from classes.AmusedDB import AmusedDB
-from flask_cors import CORS, cross_origin
 import json
 from flask_bootstrap import Bootstrap
 
@@ -9,10 +8,7 @@ import pathlib
 
 import requests
 from flask import Flask, session, abort, redirect, request
-from google.oauth2 import id_token
-from google_auth_oauthlib.flow import Flow
-from pip._vendor import cachecontrol
-import google.auth.transport.requests
+
 
 print('')
 print(' **********************************************************')
@@ -32,7 +28,6 @@ global playlist_ID
 
 app = Flask(__name__)
 app.secret_key = "!g$FRrWwkqtCZfrsptyYWwBb*"
-CORS(app)
 bootstrap = Bootstrap(app)
 
 
@@ -47,7 +42,7 @@ def login_is_required(function):
 
 @app.route('/')
 def index():
-    return 'Amused app. Use e.g. http://127.0.0.1:81/therapist?user_ID=1 for therapist screen'
+    return 'Amused app. Login screen to be added'
 
 
 @app.route('/getCategories')
@@ -120,7 +115,6 @@ def playlist():
 
 
 @app.route('/playerMSE', methods=['GET'])
-@cross_origin()
 def playerMSE():
     global playlist_ID
     playlist_ID = request.args.get('playlist_ID')
@@ -224,5 +218,8 @@ def removelaylist():
     db.removePlayList(playlist_ID)
     return 'http200OK'
 
-
-app.run(host='0.0.0.0', port=81)
+if __name__ == '__main__':
+    # This is used when running locally only. When deploying to Google App
+    # Engine, a webserver process such as Gunicorn will serve the app.
+    app.run(host='127.0.0.1', port=5000, debug=True)
+# [END gae_flex_quickstart]
