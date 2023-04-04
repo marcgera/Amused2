@@ -5,3 +5,4 @@ pyOpenSSL==19.0.0
 Flask-Login
 Flask-Cors
 Flask_Bootstrap
+gunicorn

@@ -18,8 +18,9 @@ var g_FadeTimerInterval = 200;
 var g_TransitionUngoing = false;
 var g_FadeDelta;
 var g_PlayedMusic =[];
-var video_loc = "https://storage.cloud.google.com/amused_media/media/video/";
-var music_loc = "https://storage.cloud.google.com/amused_media/media/music/";
+var g_baseLoc = "https://storage.googleapis.com/amused_media/media/"
+var video_loc = g_baseLoc + "video/";
+var music_loc = g_baseLoc + "music/";
 
 
 g_audioElement1 = document.createElement('audio');
