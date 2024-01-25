@@ -1,10 +1,19 @@
-from flask import Flask, render_template, request, Blueprint
+from flask import Flask, render_template, request, url_for, redirect
 from classes.AmusedDB import AmusedDB
 import json
 from flask_bootstrap import Bootstrap
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
+from flask_sqlalchemy import SQLAlchemy
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+from oauthlib.oauth2 import WebApplicationClient
+import requests
 
 import os
 import pathlib
+
+
+
 
 import requests
 from flask import Flask, session, abort, redirect, request
@@ -19,6 +28,15 @@ print(' *                                                        *')
 print(' **********************************************************')
 print('')
 
+# Configuration
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
+GOOGLE_DISCOVERY_URL = (
+    "https://accounts.google.com/.well-known/openid-configuration"
+)
+
+client = WebApplicationClient(GOOGLE_CLIENT_ID)
+
 db = AmusedDB()
 db.create_db()
 db.populateDB()
@@ -28,7 +46,19 @@ global playlist_ID
 
 app = Flask(__name__)
 app.secret_key = "!g$FRrWwkqtCZfrsptyYWwBb*"
-bootstrap = Bootstrap(app)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = db.get_db_uri()
+dba = SQLAlchemy(app)
+
+class User(dba.Model):
+    id = dba.Column(dba.Integer, primary_key=True)
+    user_name = dba.Column(dba.String(200))
+    user_surname = dba.Column(dba.String(200))
+    user_email = dba.Column(dba.String(200), nullable=False, unique=True)
+    user_password = dba.Column(dba.String(200))
+
+    def __repr__(self):
+        return '<Name %r' % self.user_name
 
 
 def login_is_required(function):
@@ -40,15 +70,94 @@ def login_is_required(function):
 
     return wrapper
 
+def get_google_provider_cfg():
+    return requests.get(GOOGLE_DISCOVERY_URL).json()
+
+
+@app.route("/login")
+def login():
+    # Find out what URL to hit for Google login
+    google_provider_cfg = get_google_provider_cfg()
+    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+
+    # Use library to construct the request for Google login and provide
+    # scopes that let you retrieve user's profile from Google
+    request_uri = client.prepare_request_uri(
+        authorization_endpoint,
+        redirect_uri=request.base_url + "/callback",
+        scope=["openid", "email", "profile"],
+    )
+    return redirect(request_uri)
+
+
+@app.route("/login/callback")
+def callback():
+    # Get authorization code Google sent back to you
+    code = request.args.get("code")
+
+    # Find out what URL to hit to get tokens that allow you to ask for
+    # things on behalf of a user
+    google_provider_cfg = get_google_provider_cfg()
+    token_endpoint = google_provider_cfg["token_endpoint"]
+
+    # Prepare and send a request to get tokens! Yay tokens!
+    token_url, headers, body = client.prepare_token_request(
+        token_endpoint,
+        authorization_response=request.url,
+        redirect_url=request.base_url,
+        code=code
+    )
+    token_response = requests.post(
+        token_url,
+        headers=headers,
+        data=body,
+        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+    )
+
+    # Parse the tokens!
+    client.parse_request_body_response(json.dumps(token_response.json()))
+    # Now that you have tokens (yay) let's find and hit the URL
+    # from Google that gives you the user's profile information,
+    # including their Google profile image and email
+    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+    uri, headers, body = client.add_token(userinfo_endpoint)
+    userinfo_response = requests.get(uri, headers=headers, data=body)
+
+    # You want to make sure their email is verified.
+    # The user authenticated with Google, authorized your
+    # app, and now you've verified their email through Google!
+    if userinfo_response.json().get("email_verified"):
+        unique_id = userinfo_response.json()["sub"]
+        users_email = userinfo_response.json()["email"]
+        picture = userinfo_response.json()["picture"]
+        users_name = userinfo_response.json()["given_name"]
+    else:
+        return "User email not available or not verified by Google.", 400
+    # Create a user in your db with the information provided
+    # by Google
+
+    admin = Admin()
+    admin = admin.get_admin(users_email)
+    global user_id
+    user_id = admin.ID
+
+    # Begin user session by logging the user in
+    login_user(admin)
+
+    # Send user back to homepage
+    return redirect(url_for("index"))
+
 @app.route('/')
 def index():
-    return 'Amused app. Login screen to be added'
-
+    return render_template('index.html')
 
 @app.route('/getCategories')
 def getCategories():
     return json.dumps(db.getCategories('EN'))
 
+@app.route('/dbDump')
+def dbDump():
+    return db.dump()
 
 @app.route('/getLevels')
 def getLevels():

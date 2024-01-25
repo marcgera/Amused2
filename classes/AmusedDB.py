@@ -4,6 +4,7 @@ import platform
 import calendar
 from datetime import datetime
 
+
 def dict_factory(cursor, row):
     d = {}
     for idx, col in enumerate(cursor.description):
@@ -25,18 +26,25 @@ class AmusedDB(object):
         import configparser
         config = configparser.ConfigParser()
         current_os = platform.system().lower()
-
-        if current_os.lower() == "windows":
-            db_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + '..' + os.path.sep + 'database' + os.path.sep
-        else:
-            db_path = os.getcwd() + '/database/'
-
         self.db_f_name = 'amusedDB'
-        self.db_dir_name = db_path
-        self.db_full_f_name = self.db_dir_name + self.db_f_name + '.db'
+        if current_os.lower() == "windows":
+            self.db_dir_name = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + '..' + os.path.sep + 'database' + os.path.sep
+            self.db_full_f_name = self.db_dir_name + self.db_f_name + '.db'
+            self.db_uri = "sqlite:///" + self.db_full_f_name.replace("/", "//")
+        else:
+            self.db_dir_name = os.getcwd() + '/database/'
+            self.db_full_f_name = self.db_dir_name + self.db_f_name + '.db'
+            self.db_uri = "sqlite:///database/AmusedDB.py"
+
         print('Database location:')
         print(self.db_full_f_name)
         self.conn = sqlite3.connect(self.db_full_f_name)
+
+    def get_db_path(self):
+        return self.db_full_f_name
+
+    def get_db_uri(self):
+        return  self.db_uri
 
 
     def create_table(self, table_name):
@@ -643,6 +651,8 @@ class AmusedDB(object):
                    ]
 
         self.insert_columns(table_name, columns)
+
+
 
 
 

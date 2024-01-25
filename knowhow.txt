@@ -1,6 +1,6 @@
 Google app engine:
 
-rm -rf UHTagReader
+rm -rf Amused2
 git clone https://github.com/marcgera/Amused2.git
 gcloud app deploy
 gcloud app browse
@@ -9,3 +9,4 @@ https://amused-362310.ew.r.appspot.com
 
 https://amused-362310.ew.r.appspot.com/therapist?user_ID=1
 
+`aQ`c{$IQGXQ*0s&
